@@ -17,6 +17,7 @@ import os
 import uuid
 import etcd
 import re
+import logging
 from etcd import EtcdKeyNotFound, EtcdException, EtcdNotFile, EtcdKeyError
 
 from netaddr import IPNetwork, IPAddress, AddrFormatError
@@ -26,6 +27,19 @@ from pycalico.datastore_datatypes import Rules, BGPPeer, IPPool, \
 from pycalico.datastore_errors import DataStoreError, \
     ProfileNotInEndpoint, ProfileAlreadyInEndpoint, MultipleEndpointsMatch
 from pycalico.util import get_hostname, validate_hostname_port
+
+_log = logging.getLogger("__main__")
+LOG_FORMAT = '%(asctime)s %(process)d %(levelname)s %(message)s'
+
+if __name__ == '__main__':
+    # Configure logging.
+   log_level = os.environ.get("LOG_LEVEL", "info").upper()
+   formatter = logging.Formatter(LOG_FORMAT)
+   stdout_hdlr = logging.StreamHandler(sys.stdout)
+   stdout_hdlr.setFormatter(formatter)
+   _log.addHandler(stdout_hdlr)
+   _log.setLevel(log_level)
+
 
 ETCD_AUTHORITY_DEFAULT = "127.0.0.1:2379"
 ETCD_AUTHORITY_ENV = "ETCD_AUTHORITY"
@@ -904,6 +918,9 @@ class DatastoreClient(object):
         """
         policy_path = POLICY_PATH % {"tier_name": policy.tier_name,
                                      "policy_name": policy.policy_name}
+
+        _log.debug("Write the policy to policy_path : %s", policy_path)
+
         self.etcd_client.write(policy_path, policy.to_json())
 
     @handle_errors
