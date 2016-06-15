@@ -1264,9 +1264,11 @@ class DatastoreClient(object):
                                    "workload_id": endpoint.workload_id,
                                    "endpoint_id": endpoint.endpoint_id}
         new_json = endpoint.to_json()
+        _log.debug("set_endpoint write the endpoint to ep_path : %s", ep_path)
+        _log.error("=============================================== ")
+
         self.etcd_client.write(ep_path, new_json)
         endpoint._original_json = new_json
-
     @handle_errors
     def update_endpoint(self, endpoint):
         """
@@ -1279,6 +1281,7 @@ class DatastoreClient(object):
 
         :param endpoint: The Endpoint to add to the workload.
         """
+        _log.error("2=============================================== ")
         ep_path = ENDPOINT_PATH % {"hostname": endpoint.hostname,
                                    "orchestrator_id": endpoint.orchestrator_id,
                                    "workload_id": endpoint.workload_id,
@@ -1288,6 +1291,8 @@ class DatastoreClient(object):
                                new_json,
                                prevValue=endpoint._original_json)
         endpoint._original_json = new_json
+
+        _log.debug("update_endpoint write the endpoint to ep_path : %s", ep_path)
 
     @handle_errors
     def create_endpoint(self, hostname, orchestrator_id, workload_id,
